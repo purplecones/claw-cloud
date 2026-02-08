@@ -281,7 +281,63 @@ A web app that:
 
 ---
 
+## Product Roadmap
+
+### Phase 1: Foundation (MVP)
+- [x] Planning and architecture docs
+- [ ] DigitalOcean provisioner
+- [ ] Web dashboard with auth
+- [ ] Chat proxy to user's OpenClaw
+- [ ] Instance management (create/delete/status)
+
+### Phase 2: Multi-Cloud
+- [ ] AWS integration
+- [ ] Hetzner integration
+- [ ] Vultr integration
+- [ ] Cloud credential management UI
+
+### Phase 3: Mini Apps Platform
+- [ ] App creation via chat
+- [ ] iFrame sandbox runtime
+- [ ] Dev mode (use/edit toggle)
+- [ ] App registry and dashboard tiles
+- [ ] Permission system
+- [ ] JSON/SQLite data storage
+
+### Phase 4: Marketplace & Teams
+- [ ] App marketplace
+- [ ] Publish and review flow
+- [ ] Revenue sharing (70/30)
+- [ ] Team workspaces
+- [ ] SSO for enterprise
+
+### Phase 5: Scale & Polish
+- [ ] Edge function runtime option
+- [ ] Advanced monitoring/alerts
+- [ ] Custom domains
+- [ ] White-label option
+
+---
+
 ## Iteration Log
+
+### 2026-02-08 13:33 — Security & Mini Apps Architecture
+- Created `docs/SECURITY.md` with comprehensive security model:
+  - Chat content proxying (no storage)
+  - OpenClaw memory/files isolation
+  - Cloud credential encryption
+  - Scoped IAM permissions
+  - Verification and trust mechanisms
+- Created `docs/MINI_APPS.md` with full architecture:
+  - App structure and manifest format
+  - Creation flow via natural language
+  - Runtime options (iFrame sandbox recommended)
+  - Dev mode with split view and hot reload
+  - TypeScript data model
+  - Marketplace vision with 70/30 revenue split
+  - Security layers and permission system
+- Added Product Roadmap with 5 phases
+- Mini Apps planned for Phase 3
 
 ### 2026-02-08 12:29 — DigitalOcean Implementation Deep Dive
 - Created `docs/DIGITALOCEAN.md` with comprehensive implementation details
