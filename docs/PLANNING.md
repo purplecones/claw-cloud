@@ -321,6 +321,29 @@ A web app that:
 
 ## Iteration Log
 
+### 2026-02-08 13:48 — Update & Upgrade Strategy
+- Created `docs/UPDATES.md` with comprehensive update strategy
+- **Claw Cloud updates:** Standard Vercel CI/CD, zero downtime
+- **OpenClaw instance updates:** User-triggered + nudge (MVP)
+  - Dashboard banner: "Update available: v2.3.0 → v2.4.0"
+  - Buttons: View changes, Update now, Remind me later
+- **Technical flow documented:**
+  1. Instance reports version (heartbeat/on-demand)
+  2. Claw Cloud compares against latest GitHub release
+  3. Shows banner if outdated
+  4. User clicks → API call to instance update endpoint
+  5. Instance runs `openclaw update && systemctl restart openclaw`
+  6. Reports new version back
+- **Rollback:** Keep previous version, one-click revert in dashboard
+- **Version pinning:** Power users can lock to specific version
+- **Update safety:**
+  - Staged rollouts (1% → 10% → 100%) for Phase 2
+  - Health check after every update
+  - Auto-rollback if health check fails
+  - Changelog shown before update
+- API specs for: version reporting, update trigger, rollback, status
+- Implementation checklist for MVP through Phase 3
+
 ### 2026-02-08 13:33 — Security & Mini Apps Architecture
 - Created `docs/SECURITY.md` with comprehensive security model:
   - Chat content proxying (no storage)
