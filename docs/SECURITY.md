@@ -163,6 +163,39 @@ We communicate **only** with the OpenClaw Gateway API:
 | Proxy chat messages | Access ~/.openclaw/ |
 | Trigger provisioning | View stored secrets |
 
+### Zero Access by Default
+
+We have **no access** to user instances:
+- No SSH keys installed
+- No backdoors or management ports
+- No remote access capability
+
+**If users need help:**
+1. Their OpenClaw can help debug (it has full access to its own system)
+2. We provide comprehensive docs and troubleshooting guides
+3. User can optionally grant temporary support access:
+
+**Temporary Support Access (opt-in only)**
+```
+Dashboard:
+┌─────────────────────────────────────────┐
+│ Support Access: OFF                     │
+│ [Grant access - expires in 24h]         │
+└─────────────────────────────────────────┘
+```
+
+Flow:
+1. User clicks "Grant access"
+2. Our public SSH key is injected into their instance
+3. Access auto-expires after 24 hours (cron removes key)
+4. Full audit log visible to user showing all commands run
+5. User can revoke immediately anytime
+
+**This means:**
+- By default, we literally cannot access your instance
+- Your data is truly yours — not just a promise, but technically enforced
+- Support access is temporary, audited, and user-controlled
+
 ### Why This Matters
 
 1. **Data residency:** Your data stays in the region you chose

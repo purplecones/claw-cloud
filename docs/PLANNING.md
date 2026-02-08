@@ -321,6 +321,22 @@ A web app that:
 
 ## Iteration Log
 
+### 2026-02-08 13:57 — Zero Access Security Policy
+- **Major security policy update:** Removed all management SSH key references
+- Updated `docs/SECURITY.md`:
+  - Added comprehensive "Zero Access by Default" section
+  - Documents: no SSH keys, no backdoors, no remote access by default
+  - Added temporary support access flow (opt-in only with 24h expiry)
+  - Emphasizes user control and technical enforcement
+- Updated `docs/DIGITALOCEAN.md`:
+  - Removed management SSH key generation code
+  - Removed mgmt key injection from provisioning sequence diagram
+  - Updated Pulumi implementation to not install any SSH keys by default
+  - Added opt-in temporary support access documentation
+  - Updated security hardening checklist
+- **Philosophy:** "Your data is truly yours — not just a promise, but technically enforced"
+- Support flow: User explicitly grants access → 24h expiry → full audit log → immediate revoke
+
 ### 2026-02-08 13:48 — Update & Upgrade Strategy
 - Created `docs/UPDATES.md` with comprehensive update strategy
 - **Claw Cloud updates:** Standard Vercel CI/CD, zero downtime

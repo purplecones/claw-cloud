@@ -93,10 +93,6 @@ User                    Claw Cloud API             DigitalOcean API
   │                           │ ─────────────────────────>│
   │                           │<───────────── 200 OK ─────│
   │                           │                           │
-  │                           │  POST /account/keys       │
-  │                           │  (add mgmt SSH key)       │
-  │                           │ ─────────────────────────>│
-  │                           │<───────────── 201 ────────│
   │                           │                           │
   │                           │  POST /droplets           │
   │                           │  (with user_data script)  │
@@ -451,41 +447,30 @@ const defaultFirewallRules: CreateFirewallRequest = {
 - [x] Fail2Ban (brute force protection)
 - [x] Non-root user for OpenClaw
 - [x] Token-based gateway auth
+- [x] **No management SSH keys** (zero access by default)
+- [ ] Optional: User can add their own SSH key
 - [ ] Optional: Restrict SSH to user's IP
 - [ ] Optional: Automatic security updates
 - [ ] Future: Let's Encrypt SSL via certbot
+- [ ] Future: Opt-in temporary support access with 24h expiry
 
 ---
 
 ## SSH Key Management
 
-### Our Management Key
+### Zero Access by Default
 
-We generate an SSH key pair for emergency access and debugging:
+**We do NOT install any management SSH keys on user instances.** This is a core security principle:
 
-```typescript
-// Generate once per Claw Cloud instance, store in secrets manager
-const CLAW_CLOUD_PUBLIC_KEY = "ssh-ed25519 AAAAC3...";
+- No Claw Cloud SSH keys installed
+- No backdoors or management ports
+- No remote access capability by default
 
-// Add to DigitalOcean account on first use
-async function ensureSSHKey(token: string): Promise<number> {
-  const existing = await listSSHKeys(token);
-  const found = existing.find(k => k.name === 'claw-cloud-management');
-  
-  if (found) return found.id;
-  
-  const created = await createSSHKey(token, {
-    name: 'claw-cloud-management',
-    public_key: CLAW_CLOUD_PUBLIC_KEY
-  });
-  
-  return created.id;
-}
-```
+Users have full control over their own instances and can add their own SSH keys if desired.
 
 ### User SSH Keys (Optional)
 
-Allow users to add their own SSH key for direct access:
+Allow users to add their own SSH key for direct access to their instance:
 
 ```typescript
 interface UserSSHKey {
@@ -495,6 +480,44 @@ interface UserSSHKey {
   fingerprint: string;
 }
 ```
+
+### Temporary Support Access (Opt-in Only)
+
+If a user needs hands-on support, they can **temporarily grant access** via the dashboard:
+
+```
+Dashboard:
+┌─────────────────────────────────────────┐
+│ Support Access: OFF                     │
+│ [Grant access - expires in 24h]         │
+└─────────────────────────────────────────┘
+```
+
+**Flow:**
+1. User clicks "Grant access" in dashboard
+2. Our support SSH key is injected into their instance
+3. Access auto-expires after 24 hours (cron job removes key)
+4. Full audit log visible to user showing all commands run
+5. User can revoke access immediately at any time
+
+**Implementation:**
+```typescript
+// Only called when user explicitly grants access
+async function grantTemporarySupportAccess(dropletId: number, userId: string): Promise<void> {
+  // 1. Inject our support key via cloud-init or SSH
+  // 2. Set up 24-hour expiry cron job
+  // 3. Log access grant to audit table
+  // 4. Notify user via dashboard
+}
+
+async function revokeSupportAccess(dropletId: number, userId: string): Promise<void> {
+  // 1. Remove our support key
+  // 2. Clear cron job
+  // 3. Log revocation to audit table
+}
+```
+
+This ensures users maintain complete control while still having a path to get help when needed.
 
 ---
 
@@ -640,19 +663,16 @@ export interface DOProvisionConfig {
 export async function provisionOpenClaw(config: DOProvisionConfig) {
   const name = `openclaw-${config.userId}-${Date.now()}`;
   
-  // SSH Key (or reference existing)
-  const sshKey = new digitalocean.SshKey("claw-cloud-key", {
-    name: "claw-cloud-management",
-    publicKey: process.env.CLAW_CLOUD_SSH_PUBLIC_KEY!,
-  });
-
+  // Note: No management SSH keys installed by default
+  // Users can optionally provide their own SSH key
+  
   // Droplet
   const droplet = new digitalocean.Droplet(name, {
     name,
     region: config.region,
     size: config.size,
     image: "ubuntu-24-04-x64",
-    sshKeys: [sshKey.fingerprint],
+    sshKeys: config.userSshKeyFingerprint ? [config.userSshKeyFingerprint] : [],
     monitoring: true,
     ipv6: true,
     userData: bootstrapScript(config),
